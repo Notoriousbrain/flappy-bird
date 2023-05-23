@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@900&display=swap');
+
+
+.press-start {
+  font-family: 'Press Start 2P', sans-serif;
+}
+
+.play-sans {
+  font-family: 'Instrument Sans', sans-serif;
+}
+
+.text-shadow {
+  text-shadow: -3px 0px 2px rgb(191, 64, 191), 3px 0px 2px rgb(135, 206, 235);
+}
