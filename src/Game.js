@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getHighestScores, getPrevData, saveScore } from "./firebase/utility";
 import './Game.css';
 import Details from "./Details";
+import Retry from "./Retry";
 import Title from "./Title";
 import Leaderboard from "./Leaderboard";
 
@@ -32,6 +33,8 @@ function Game({ email, setEmail }) {
   const [highestScoresArray, setHighestScoresArray] = useState([]);
   const [userName, setUserName] = useState("");
   const [isDetails, setIsDetails] = useState(false);
+  const [detailsOn, setDetailsOn] = useState(false);
+  const [isRetry, setIsRetry] = useState(false);
 
     const prevDataHandler = async () => {
       const prevData = await getPrevData(email);
@@ -163,6 +166,7 @@ function Game({ email, setEmail }) {
           objPos4 <= OBJ_WIDTH + 80 &&
           (topObj4 || bottomObj4))
       ) {
+        setIsRetry(true);
         setIsStart(false);
         setBirspos(300);
         const scoreLength = await saveScore(email, score);
@@ -174,20 +178,20 @@ function Game({ email, setEmail }) {
 
     handleCollision();
   }, [isStart, birdpos, objHeight1, objHeight2, objHeight3, objHeight4, objPos1, objPos2, objPos3, objPos4, score, email]);
-
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsDetails(true);
-    }, 1000);
-  },[])
-
+ 
+  const detailsHandler = () => {
+       setIsDetails(true);
+  }
 
   const handler = async () => {
     if(!outOfChances){
+      setIsRetry(false);
       if(!userName) {
       await prevDataHandler();
       } 
+      if(!detailsOn) {
+       detailsHandler();
+      }
         
       if(userName && !isDetails){
           setIsStart(true);
@@ -202,7 +206,7 @@ function Game({ email, setEmail }) {
 
   return (
     <div className="h-screen w-screen fixed flex justify-center items-center md:block">
-      <div className="flex items-center justify-center w-full bg-no-repeat bg-contain">
+      <div className="flex items-center justify-center w-full">
         <img
           src="./images/background-day.png"
           alt="bg"
@@ -320,9 +324,9 @@ function Game({ email, setEmail }) {
             }}
           />
 
-          {(!isStart && !outOfChances) && (
+          {!isStart && !outOfChances && (
             <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white cursor-pointer w-[55%] lgm:w-3/5 md:w-[85%] sm:w-[95%] ">
-              {!isDetails && (
+              {(!isDetails && !isRetry) && (
                 <>
                   <div className="tracking-[5px] text-center">
                     <Title />
@@ -330,7 +334,15 @@ function Game({ email, setEmail }) {
                   <div className="mt-4 text-center md:text-sm sm:text-[11px] xs:text-[8px] press-start">
                     <p>IT'S TIME TO LEVEL UP YOUR SHOPPING</p>
                     <p>GAME AND UNLOCK UNBEATABLE SAVINGS!</p>
-                    <p className="text-[10px] sm:text-[8px] xs:text-[7px] mt-2 animate-blink">CLICK ANYWHERE TO START</p>
+                    {!detailsOn ? (
+                      <p className="text-[10px] sm:text-[8px] xs:text-[7px] mt-2 animate-blink">
+                        CLICK TO CONTINUE
+                      </p>
+                    ) : (
+                      <p className="text-[10px] sm:text-[8px] xs:text-[7px] mt-2 animate-blink">
+                        LET'S GO
+                      </p>
+                    )}
                   </div>
                 </>
               )}
@@ -338,18 +350,28 @@ function Game({ email, setEmail }) {
           )}
 
           {isDetails && (
-             <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white cursor-pointer">
-               <Details email={email} setEmail={setEmail} setIsStart={setIsStart} setIsDetails={setIsDetails} />
-             </div>
-             )}
+            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white cursor-pointer">
+              <Details
+                setDetailsOn={setDetailsOn}
+                email={email}
+                setEmail={setEmail}
+                setIsStart={setIsStart}
+                setIsDetails={setIsDetails}
+              />
+            </div>
+          )}
 
-          {(outOfChances && !isDetails )&& (
-             <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-black cursor-pointer">
-                <Leaderboard highestScoresArray={highestScoresArray} />
-              </div>
-          )
+          {(outOfChances && !isDetails) && (
+            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-black cursor-pointer">
+              <Leaderboard highestScoresArray={highestScoresArray} />
+            </div>
+          )}
 
-          }
+          {(isRetry && !outOfChances) && (
+            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-black cursor-pointer">
+              <Retry handler={handler} />
+            </div>
+          )}
         </div>
         <img
           src="./images/background-bottom.png"

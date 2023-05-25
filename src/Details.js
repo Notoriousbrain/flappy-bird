@@ -1,54 +1,55 @@
 import React, { useState } from 'react'
 import { saveUserDetails } from './firebase/utility';
 
-const Details = ({ email, setEmail, setIsStart, setIsDetails }) => {
-    const [ userName, setUserName ] = useState("");
-    const [ phoneNo, setPhoneNo ] = useState("");
-    const [nameError, setNameError] = useState("");
-    const [emailError, setEmailError] = useState("");
+const Details = ({ email, setEmail, setDetailsOn, setIsDetails }) => {
+  const [userName, setUserName] = useState("");
+  const [phoneNo, setPhoneNo] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
 
-    const handleNameChange = (e) => {
-      setUserName(e.target.value);
+  const handleNameChange = (e) => {
+    setUserName(e.target.value);
+    setNameError("");
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setEmailError("");
+  };
+
+  const handleNumberChange = (e) => {
+    const input = e.target.value;
+    const numbersOnly = input.replace(/[^0-9]/g, "");
+    setPhoneNo(numbersOnly);
+  };
+
+  const handleClick = async () => {
+    let isValid = true;
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      setEmailError("Email is required");
+      isValid = false;
+    } else if (!email || !emailRegex.test(email)) {
+      setEmailError("Invalid email");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+
+    if (!userName) {
+      setNameError("Name is required");
+      isValid = false;
+    } else {
       setNameError("");
     }
-    
-    const handleEmailChange = (e) => {
-      setEmail(e.target.value);
-      setEmailError("");
-    };
 
-    const handleNumberChange = (e) => {
-      const input = e.target.value;
-      const numbersOnly = input.replace(/[^0-9]/g, "");
-      setPhoneNo(numbersOnly);
-    };
-
-const handleClick = async () => {
-  let isValid = true;
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!email){
-   setEmailError("Email is required");
-   isValid = false;
-  }else if(!email || !emailRegex.test(email)) {
-    setEmailError("Invalid email");
-    isValid = false;
-  } else {
-    setEmailError(""); 
-  }
-
-  if (!userName) {
-    setNameError("Name is required");
-    isValid = false;
-  } else {
-    setNameError(""); 
-  }
-
-  if (isValid) {
-    await saveUserDetails({ userName, email, phoneNo, score: [] });
-      setIsDetails(false)
-  }
-};
+    if (isValid) {
+      await saveUserDetails({ userName, email, phoneNo, score: [] });
+      setDetailsOn(true);
+      setIsDetails(false);
+    }
+  };
 
   return (
     <div className=" w-screen  flex flex-col items-center">
@@ -103,6 +104,6 @@ const handleClick = async () => {
       </div>
     </div>
   );
-}
+};
 
 export default Details
