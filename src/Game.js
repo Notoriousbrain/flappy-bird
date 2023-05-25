@@ -3,6 +3,7 @@ import { getHighestScores, getPrevData, saveScore } from "./firebase/utility";
 import './Game.css';
 import Details from "./Details";
 import Title from "./Title";
+import Leaderboard from "./Leaderboard";
 
 const BIRD_HEIGHT = 28;
 const BIRD_WIDTH = 33;
@@ -13,7 +14,7 @@ const OBJ_SPEED = 6;
 const OBJ_GAP = 250;
 
 
-function Game() {
+function Game({ email, setEmail }) {
   const [isStart, setIsStart] = useState(false);
   const [birdpos, setBirspos] = useState(300);
   const [objHeight1, setObjHeight1] = useState(0);
@@ -26,26 +27,20 @@ function Game() {
   const [objPos4, setObjPos4] = useState(WALL_WIDTH + WALL_WIDTH / 2 );
   const [score, setScore] = useState(0);
   const [chances, setChances] = useState(1);
-  const [email, setEmail] = useState("");
   const [outOfChances, setOutOfChances] = useState(false);
   const [highestScore, setHighestScore] = useState(0);
   const [highestScoresArray, setHighestScoresArray] = useState([]);
   const [userName, setUserName] = useState("");
   const [isDetails, setIsDetails] = useState(false);
 
-  useEffect(() => {
     const prevDataHandler = async () => {
       const prevData = await getPrevData(email);
       setHighestScore(prevData?.highestScore || 0);
       setChances(prevData?.score?.length + 1 || 1);
       setUserName(prevData?.userName);
       setHighestScoresArray(await getHighestScores());
-      console.log(prevData)
-      console.log(userName)
+      console.log(prevData);
     };
-
-    prevDataHandler();
-  }, [email]);
 
   useEffect(() => {
     let intVal;
@@ -58,15 +53,15 @@ function Game() {
   }, [isStart, birdpos]);
 
 
-  // useEffect(() => {
-  //   if (chances > 3) {
-  //     setOutOfChances(true);
-  //   }
-  //   if (score > highestScore) {
-  //     setHighestScore(score);
-  //   }
+  useEffect(() => {
+    if (chances > 3) {
+      setOutOfChances(true);
+    }
+    if (score > highestScore) {
+      setHighestScore(score);
+    }
    
-  // }, [score, highestScore, chances]);
+  }, [score, highestScore, chances]);
 
 
   useEffect(() => {
@@ -178,28 +173,30 @@ function Game() {
     };
 
     handleCollision();
-  }, [
-    isStart,
-    birdpos,
-    objHeight1,
-    objHeight2,
-    objHeight3,
-    objHeight4,
-    objPos1,
-    objPos2,
-    objPos3,
-    objPos4,
-    score,
-    email
-  ]);
+  }, [isStart, birdpos, objHeight1, objHeight2, objHeight3, objHeight4, objPos1, objPos2, objPos3, objPos4, score, email]);
 
-  const handler = () => {
-    if(isStart){
-  if (birdpos < BIRD_HEIGHT) setBirspos(0);
-    else setBirspos((birdpos) => birdpos - 80);
-    }
-    else {
+
+  useEffect(() => {
+    setTimeout(() => {
       setIsDetails(true);
+    }, 1000);
+  },[])
+
+
+  const handler = async () => {
+    if(!outOfChances){
+      if(!userName) {
+      await prevDataHandler();
+      } 
+        
+      if(userName && !isDetails){
+          setIsStart(true);
+      
+      if(isStart){
+        if (birdpos < BIRD_HEIGHT) setBirspos(0);
+        else setBirspos((birdpos) => birdpos - 80);
+      }
+    }
     }
   };
 
@@ -323,27 +320,36 @@ function Game() {
             }}
           />
 
-          {!isStart && (
-            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white cursor-pointer">
+          {(!isStart && !outOfChances) && (
+            <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white cursor-pointer w-[55%] lgm:w-3/5 md:w-[85%] sm:w-[95%] ">
               {!isDetails && (
                 <>
                   <div className="tracking-[5px] text-center">
                     <Title />
                   </div>
-                  <div className="mt-4 text-center press-start">
+                  <div className="mt-4 text-center md:text-sm sm:text-[11px] xs:text-[8px] press-start">
                     <p>IT'S TIME TO LEVEL UP YOUR SHOPPING</p>
                     <p>GAME AND UNLOCK UNBEATABLE SAVINGS!</p>
+                    <p className="text-[10px] sm:text-[8px] xs:text-[7px] mt-2 animate-blink">CLICK ANYWHERE TO START</p>
                   </div>
                 </>
               )}
             </div>
           )}
 
-          { !userName && (
+          {isDetails && (
              <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white cursor-pointer">
                <Details email={email} setEmail={setEmail} setIsStart={setIsStart} setIsDetails={setIsDetails} />
              </div>
              )}
+
+          {(outOfChances && !isDetails )&& (
+             <div className="absolute top-1/3 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-black cursor-pointer">
+                <Leaderboard highestScoresArray={highestScoresArray} />
+              </div>
+          )
+
+          }
         </div>
         <img
           src="./images/background-bottom.png"

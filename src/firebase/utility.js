@@ -54,7 +54,7 @@ export const getHighestScores = async () => {
             user.highestScore &&
             highestScores.push({
               highestScore: user.highestScore,
-              email: user.email,
+              userName: user.userName,
             })
         );
        highestScores.sort((a,b) => { return b.highestScore - a.highestScore})

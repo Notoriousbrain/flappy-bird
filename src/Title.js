@@ -3,7 +3,7 @@ import React from 'react'
 const Title = () => {
   return (
     <div>
-      <p className="font-extrabold text-[45px]">
+      <p className="font-extrabold text-[45px] md:text-[40px] sm:text-[25px] xs:text-[20px] ">
         <span className="text-shadow play-sans">D</span>
         <span className="text-shadow play-sans">O</span>
         <span className="text-shadow play-sans">N</span>
@@ -21,7 +21,7 @@ const Title = () => {
         <span className="text-shadow play-sans">P</span>
         <span className="text-shadow play-sans">,</span>
       </p>
-      <p className="font-extrabold text-[45px] -mt-4">
+      <p className="font-extrabold text-[45px] md:text-[40px] sm:text-[25px] xs:text-[20px] -mt-4 sm:-mt-2">
         <span className="text-shadow play-sans">P</span>
         <span className="text-shadow play-sans">L</span>
         <span className="text-shadow play-sans">A</span>

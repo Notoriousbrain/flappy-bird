@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { saveUserDetails } from './firebase/utility';
 
-const Details = ({ email, setEmail, setIsStart }) => {
+const Details = ({ email, setEmail, setIsStart, setIsDetails }) => {
     const [ userName, setUserName ] = useState("");
     const [ phoneNo, setPhoneNo ] = useState("");
     const [nameError, setNameError] = useState("");
@@ -11,9 +11,10 @@ const Details = ({ email, setEmail, setIsStart }) => {
       setUserName(e.target.value);
       setNameError("");
     }
-
+    
     const handleEmailChange = (e) => {
       setEmail(e.target.value);
+      setEmailError("");
     };
 
     const handleNumberChange = (e) => {
@@ -25,7 +26,6 @@ const Details = ({ email, setEmail, setIsStart }) => {
 const handleClick = async () => {
   let isValid = true;
 
-  // Email validation using regex
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if(!email){
    setEmailError("Email is required");
@@ -34,27 +34,25 @@ const handleClick = async () => {
     setEmailError("Invalid email");
     isValid = false;
   } else {
-    setEmailError(""); // Clear the email error message if it was previously set
+    setEmailError(""); 
   }
 
   if (!userName) {
     setNameError("Name is required");
     isValid = false;
   } else {
-    setNameError(""); // Clear the name error message if it was previously set
+    setNameError(""); 
   }
 
   if (isValid) {
-    saveUserDetails({ userName, email, phoneNo, score: [] });
-    setTimeout(() => {
-      setIsStart(true);
-    }, 100);
+    await saveUserDetails({ userName, email, phoneNo, score: [] });
+      setIsDetails(false)
   }
 };
 
   return (
     <div className=" w-screen  flex flex-col items-center">
-      <div className="h-full rounded-xl mt-[10vh] pt-4 pb-10 bg-orange-950/80 px-12 flex flex-col justify-center w-1/3 lgm:w-1/3 md:w-2/5 sm:w-4/5">
+      <div className="h-full rounded-xl mt-[10vh] pt-4 pb-10 bg-orange-950/80 px-12 md:px-6 sm:px-4  flex flex-col justify-center w-1/3 lgm:w-2/5 md:w-1/2 sm:w-11/12">
         <h1 className="text-center text-2xl text-white">Enter Details</h1>
         <div className="space-y-6 w-full mt-4">
           <div>
